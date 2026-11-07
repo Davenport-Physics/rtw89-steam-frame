@@ -82,7 +82,11 @@ for p in "$HERE"/patches/*.patch; do
 done
 
 echo "Building"
-make -s -j"$(nproc)" -C "$KBUILD" M="$WORK/src" modules 2>&1 \
+MAKE_EXTRA=()
+if [[ "$KVER" == *cachyos* ]]; then
+	MAKE_EXTRA+=(LLVM=1)
+fi
+make -s -j"$(nproc)" -C "$KBUILD" M="$WORK/src" "${MAKE_EXTRA[@]}" modules 2>&1 \
 	| grep -vE 'BTF|pahole|was built with|You are using' || true
 [ -f "$WORK/src/rtw89_8852cu.ko" ] || die "build failed"
 for o in $OPTIONS; do
